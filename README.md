@@ -1,5 +1,5 @@
 # cse210-ww-student-template
-Plaxedes Ncube
+Plaxedes Ncube projects
 
 This is the starter code for students in the worldwide content version of CSE 210.
 

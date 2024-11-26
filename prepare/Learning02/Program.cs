@@ -9,7 +9,7 @@ class Program
         Job job1 = new Job
         {
             JobTitle = "Software Developer",
-            Company = "Econet",
+            Company = "EconetZW",
             StartYear = 2014,
             EndYear = 2022
         };

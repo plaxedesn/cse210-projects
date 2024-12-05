@@ -4,34 +4,48 @@ using System.Linq;
 
 namespace ScriptureMemorizer
 {
-    //scripture reference 
+    // Scripture reference class
     public class Reference
     {
-        public string ReferenceStr { get; private set; } 
+        public string ReferenceStr { get; private set; }
+        public string StartVerse { get; private set; }
+        public string EndVerse { get; private set; }
+        public bool IsMultiVerse { get; private set; }
 
-        // Constructor for initialising the reference
+        // Constructor for single-verse reference
         public Reference(string referenceStr)
         {
             ReferenceStr = referenceStr;
+            IsMultiVerse = false;
+        }
+
+        // Constructor for multi-verse reference
+        public Reference(string startVerse, string endVerse)
+        {
+            StartVerse = startVerse;
+            EndVerse = endVerse;
+            IsMultiVerse = true;
         }
 
         public override string ToString()
         {
-            return ReferenceStr;
+            return IsMultiVerse
+                ? $"{StartVerse} - {EndVerse}"
+                : ReferenceStr;
         }
     }
 
     // Class to represent each word in the scripture
     public class Word
     {
-        public string Text { get; private set; } 
-        public bool IsHidden { get; private set; } 
+        public string Text { get; private set; }
+        public bool IsHidden { get; private set; }
 
-        // Constructor for initialising the word
+        // Constructor for initializing the word
         public Word(string text)
         {
             Text = text;
-            IsHidden = false; 
+            IsHidden = false;
         }
 
         // Method for hiding the word
@@ -40,7 +54,7 @@ namespace ScriptureMemorizer
             IsHidden = true;
         }
 
-        // Method for displaying the word 
+        // Method for displaying the word
         public string Display()
         {
             return IsHidden ? new string('_', Text.Length) : Text;
@@ -50,26 +64,29 @@ namespace ScriptureMemorizer
     // Class for representing scripture containing a reference and its words
     public class Scripture
     {
-        public Reference ScriptureReference { get; private set; } 
-        private List<Word> Words { get; set; } 
+        public Reference ScriptureReference { get; private set; }
+        private List<Word> Words { get; set; }
 
-        // Constructor forinitialising the scripture with reference and text
+        // Constructor for initializing the scripture with a reference and text
         public Scripture(string reference, string text)
         {
             ScriptureReference = new Reference(reference);
-            
             Words = text.Split(' ').Select(word => new Word(word)).ToList();
         }
 
-        // Method for hiding random word
+        public Scripture(string startVerse, string endVerse, string text)
+        {
+            ScriptureReference = new Reference(startVerse, endVerse);
+            Words = text.Split(' ').Select(word => new Word(word)).ToList();
+        }
+
+        // Method for hiding a random word
         public void HideRandomWord()
         {
-            
             var availableWords = Words.Where(word => !word.IsHidden).ToList();
-            if (availableWords.Count > 0) // Check if there are words available to hide
+            if (availableWords.Count > 0)
             {
                 var random = new Random();
-                
                 var wordToHide = availableWords[random.Next(availableWords.Count)];
                 wordToHide.Hide();
             }
@@ -85,29 +102,28 @@ namespace ScriptureMemorizer
     // Class to manage the memorization process
     public class Memorizer
     {
-        private Scripture _scripture; 
+        private Scripture _scripture;
 
         public Memorizer(Scripture scripture)
         {
             _scripture = scripture;
         }
 
-        // Method for running memorization process
+        // Method for running the memorization process
         public void Run()
         {
-            while (true) // Loop until the user decides to quit
+            while (true)
             {
-                Console.Clear(); 
-                Console.WriteLine(_scripture.Display()); 
+                Console.Clear();
+                Console.WriteLine(_scripture.Display());
                 Console.Write("Press Enter to hide a word or type 'quit' to exit: ");
-                var userInput = Console.ReadLine(); 
-                if (userInput?.ToLower() == "quit") 
+                var userInput = Console.ReadLine();
+                if (userInput?.ToLower() == "quit")
                 {
-                    break; // Exit the loop
+                    break;
                 }
-                _scripture.HideRandomWord(); // Hide a random word
+                _scripture.HideRandomWord();
             }
-            // Final display of the scripture with all words hidden
             Console.WriteLine("Final scripture:");
             Console.WriteLine(_scripture.Display());
         }
@@ -118,16 +134,21 @@ namespace ScriptureMemorizer
     {
         static void Main(string[] args)
         {
-            
             string scriptureText = "For God so loved the world that he gave his one and only Son";
-            string scriptureReference = "John 3:16";
+            string singleVerse = "John 3:16";
+            string multiVerseStart = "John 3:16";
+            string multiVerseEnd = "John 3:17";
 
-            
-            var scripture = new Scripture(scriptureReference, scriptureText);
-            
-            var memorizer = new Memorizer(scripture);
-            s
+            var singleVerseScripture = new Scripture(singleVerse, scriptureText);
+            var multiVerseScripture = new Scripture(multiVerseStart, multiVerseEnd, scriptureText);
+
+            Console.WriteLine("Single Verse Scripture:");
+            var memorizer = new Memorizer(singleVerseScripture);
             memorizer.Run();
+
+            Console.WriteLine("\nMulti-Verse Scripture:");
+            var multiVerseMemorizer = new Memorizer(multiVerseScripture);
+            multiVerseMemorizer.Run();
         }
     }
 }
